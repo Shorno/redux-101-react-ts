@@ -15,7 +15,7 @@ import {
     Typography
 } from "antd";
 import {addTodo, deleteTodo, editTodo, TodoState, toggleTodo} from "./todoSlice.ts";
-import {CloseOutlined, DeleteOutlined, EditOutlined, SaveOutlined} from "@ant-design/icons";
+import {CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SaveOutlined} from "@ant-design/icons";
 
 export default function Todo() {
     const [title, setTitle] = useState<string>("")
@@ -130,10 +130,14 @@ export default function Todo() {
             <Space.Compact className={"w-80 sm:w-96"}>
                 <Input placeholder={"Enter todo title"} value={title}
                        onChange={(event) => setTitle(event.target.value)}
-                       onPressEnter={handleAddTodo}/>
+                       onPressEnter={handleAddTodo}
+                       size={"large"}
+                />
                 <Button
                     onClick={handleAddTodo}
                     type="primary"
+                    size={"large"}
+                    icon={<PlusOutlined/>}
                 >
                     Add todo
                 </Button>
