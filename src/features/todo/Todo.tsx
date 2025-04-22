@@ -1,7 +1,19 @@
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../store.ts";
 import {useState} from "react";
-import {Button, Checkbox, Flex, Input, notification, Space, Table, TableColumnsType, Tag, Typography} from "antd";
+import {
+    Button,
+    Checkbox,
+    Flex,
+    Input,
+    notification,
+    Popconfirm,
+    Space,
+    Table,
+    TableColumnsType,
+    Tag,
+    Typography
+} from "antd";
 import {addTodo, deleteTodo, editTodo, TodoState, toggleTodo} from "./todoSlice.ts";
 import {CloseOutlined, DeleteOutlined, EditOutlined, SaveOutlined} from "@ant-design/icons";
 
@@ -19,7 +31,7 @@ export default function Todo() {
             return
         }
         dispatch(addTodo(title))
-        notification.success({message: "Todo added successfully"})
+        notification.success({message: "Todo added"})
         setTitle("")
     }
 
@@ -47,15 +59,15 @@ export default function Todo() {
             return;
         }
         dispatch(editTodo({id, title}));
+        notification.success({message: "Todo updated"})
         setIsEditing(false);
         setEditingId(null);
     }
 
     const handleDeleteTodo = (id: string) => {
         dispatch(deleteTodo(id))
-        notification.success({message: "Todo removed successfully"})
+        notification.success({message: "Todo removed"})
     }
-
     const columns: TableColumnsType<TodoState> = [
         {
             title: "Title",
@@ -96,7 +108,16 @@ export default function Todo() {
                     :
                     <Flex gap={10}>
                         <Button icon={<EditOutlined/>} onClick={() => handleStartEditing(record.id, record.title)}/>
-                        <Button icon={<DeleteOutlined/>} onClick={() => handleDeleteTodo(record.id)}/>
+                        <Popconfirm
+                            title="Delete the task"
+                            description={`Are you sure to delete ${record.title} task?`}
+                            onConfirm={() => handleDeleteTodo(record.id)}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <Button icon={<DeleteOutlined/>}/>
+
+                        </Popconfirm>
                     </Flex>
                 }
             </Flex>
