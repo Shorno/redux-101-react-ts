@@ -3,11 +3,11 @@ import {RootState} from "../../store.ts";
 import {useState} from "react";
 import {
     Button,
-    Checkbox,
+    Checkbox, Divider,
     Flex,
     Input,
     notification,
-    Popconfirm,
+    Popconfirm, Select,
     Space,
     Table,
     TableColumnsType,
@@ -15,7 +15,14 @@ import {
     Typography
 } from "antd";
 import {addTodo, deleteTodo, editTodo, TodoState, toggleTodo} from "./todoSlice.ts";
-import {CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SaveOutlined} from "@ant-design/icons";
+import {
+    CloseOutlined,
+    DeleteOutlined,
+    EditOutlined,
+    PlusOutlined,
+    SaveOutlined
+} from "@ant-design/icons";
+import {addCategory, removeCategory} from "../category/categorySlice.ts";
 
 export default function Todo() {
     const [title, setTitle] = useState<string>("")
@@ -24,6 +31,8 @@ export default function Todo() {
     const dispatch = useDispatch()
     const [isEditing, setIsEditing] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
+    const categories = useSelector((state: RootState) => state.category)
+    const [newCategoryName, setNewCategoryName] = useState("")
 
     const handleAddTodo = () => {
         if (title === "") {
@@ -68,6 +77,20 @@ export default function Todo() {
         dispatch(deleteTodo(id))
         notification.success({message: "Todo removed"})
     }
+
+
+    const handleAddNewCategory = (name: string) => {
+        if (name === "") {
+            notification.info({message: "Category name is empty!"})
+            return
+        }
+        dispatch(addCategory(name))
+        setNewCategoryName("")
+    }
+    const handleDeleteCategory = (id: string) => {
+        dispatch(removeCategory(id))
+    };
+
     const columns: TableColumnsType<TodoState> = [
         {
             title: "Title",
@@ -142,6 +165,48 @@ export default function Todo() {
                     Add todo
                 </Button>
             </Space.Compact>
+            <Flex className={"mt-10!"}>
+                <Select
+                    placeholder={"TODO category"}
+                    size={"large"}
+                    className={"w-56"}
+                    options={categories}
+                    fieldNames={{value: 'id'}}
+                    optionRender={(option) => (
+                        <>
+                            <Flex justify={"space-between"}>
+                                {option.data.label}
+                                <DeleteOutlined onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteCategory(option.data.id);
+                                }}/>
+                            </Flex>
+                        </>
+
+                    )}
+                    dropdownRender={(categories) => (
+                        <>
+                            {categories}
+                                <Divider className={"my-2!"}/>
+                                <Flex gap={10} className={"p-1!"}>
+                                    <Input placeholder={"Category name"}
+                                           value={newCategoryName}
+                                           onPressEnter={() => handleAddNewCategory(newCategoryName)}
+                                           onChange={(event) => setNewCategoryName(event.target.value)}/>
+                                    <Button
+                                        icon={<PlusOutlined/>}
+                                        onClick={() => handleAddNewCategory(newCategoryName)}
+                                    >
+                                        Add
+                                    </Button>
+                                </Flex>
+                        </>
+                    )}
+
+
+                />
+            </Flex>
+
             <Flex className={"pt-32!"}>
                 <Table bordered dataSource={todos} columns={columns} className={"w-80 sm:w-96"} pagination={false}/>
             </Flex>

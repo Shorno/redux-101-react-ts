@@ -4,10 +4,11 @@ import {loadFromLocalStorage, saveToLocalStorage} from "../../utils/localStorage
 export interface TodoState {
     id: string,
     title: string,
-    completed: boolean
+    completed: boolean,
 }
 
 const STORAGE_KEY = 'todos';
+
 
 const initialState: TodoState[] = loadFromLocalStorage<TodoState[]>(STORAGE_KEY, []);
 
