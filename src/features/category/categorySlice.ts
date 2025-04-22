@@ -1,6 +1,7 @@
 import {createSlice, nanoid, PayloadAction} from "@reduxjs/toolkit";
+import {loadFromLocalStorage, saveToLocalStorage} from "../../utils/localStorage.ts";
 
-interface Category {
+export interface Category {
     id: string,
     label: string
 }
@@ -15,7 +16,8 @@ const categories: Category[] = [
         label: "Work"
     }
 ]
-const initialState: Category[] = categories || []
+const STORAGE_KEY = "categories"
+const initialState: Category[] = loadFromLocalStorage<Category[]>(STORAGE_KEY, categories)
 
 export const categorySlice = createSlice({
     name: "category",
@@ -27,9 +29,13 @@ export const categorySlice = createSlice({
                 label: action.payload
             }
             state.push(newCategory)
+            saveToLocalStorage(STORAGE_KEY, state)
         },
         removeCategory: (state, action: PayloadAction<string>) => {
-            return state.filter((category) => category.id !== action.payload)
+            const newState = state.filter((category) => category.id !== action.payload)
+            saveToLocalStorage(STORAGE_KEY, newState)
+            return newState
+
         }
     }
 })

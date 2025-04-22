@@ -9,7 +9,12 @@ export const saveToLocalStorage = <T>(key: string, data: T): void => {
 export const loadFromLocalStorage = <T>(key: string, defaultValue: T): T => {
     try {
         const savedData = localStorage.getItem(key);
-        return savedData ? JSON.parse(savedData) : defaultValue;
+        if (!savedData) return defaultValue;
+        const parsedData = JSON.parse(savedData);
+        if (parsedData && parsedData.length === 0) {
+            return defaultValue;
+        }
+        return parsedData;
     } catch (e) {
         console.error(`Failed to load ${key} from localStorage`, e);
         return defaultValue;

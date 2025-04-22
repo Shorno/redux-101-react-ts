@@ -5,6 +5,7 @@ export interface TodoState {
     id: string,
     title: string,
     completed: boolean,
+    category?: string
 }
 
 const STORAGE_KEY = 'todos';
@@ -17,11 +18,12 @@ export const todoSlice = createSlice({
     name: "todo",
     initialState,
     reducers: {
-        addTodo: (state, action: PayloadAction<string>) => {
-            const newTodo = {
+        addTodo: (state, action: PayloadAction<{ title: string, category: string }>) => {
+            const newTodo: TodoState = {
                 id: nanoid(),
-                title: action.payload,
-                completed: false
+                title: action.payload.title,
+                completed: false,
+                category: action.payload.category === "" ? "All" : action.payload.category
             }
             state.push(newTodo)
             saveToLocalStorage(STORAGE_KEY, state)
