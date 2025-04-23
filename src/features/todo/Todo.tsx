@@ -34,6 +34,8 @@ export default function Todo() {
     const [newCategoryName, setNewCategoryName] = useState("")
     const [category, setCategory] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("")
+    const [editCategory, setEditCategory] = useState("")
+    const [isCompleted, setIsCompleted] = useState<undefined | boolean>(undefined)
 
     const handleAddTodo = () => {
         if (title === "") {
@@ -44,10 +46,18 @@ export default function Todo() {
         notification.success({message: "Todo added"})
         setTitle("")
     }
-    const filteredTodo = (category: string) => {
-        if (category === "") return todos
-        return todos.filter((todo) => todo.category === category)
-    }
+
+
+    const filterTodos = (categoryFilter: string, isCompleted?: boolean) => {
+        const categoryFiltered = categoryFilter === ""
+            ? todos
+            : todos.filter(todo => todo.category === categoryFilter);
+
+        return isCompleted !== undefined
+            ? categoryFiltered.filter(todo => todo.completed === isCompleted)
+            : categoryFiltered;
+    };
+
 
     const handleToggleTodo = (id: string, title: string, completed: boolean) => {
         dispatch(toggleTodo(id));
@@ -72,7 +82,7 @@ export default function Todo() {
             notification.info({message: "Todo title cannot be empty"});
             return;
         }
-        dispatch(editTodo({id, title}));
+        dispatch(editTodo({id, title, category: editCategory}));
         notification.success({message: "Todo updated"})
         setIsEditing(false);
         setEditingId(null);
@@ -109,13 +119,26 @@ export default function Todo() {
                         checked={record.completed}
                     />
                     {isEditing && editingId === record.id ?
-                        <Input
-                            value={editedTitle}
-                            onChange={(event) => setEditedTitle(event.target.value)}
-                            onPressEnter={() => handleEditTitle(record.id, editedTitle)}
-                        />
+                        <>
+                            <Input
+                                value={editedTitle}
+                                onChange={(event) => setEditedTitle(event.target.value)}
+                                onPressEnter={() => handleEditTitle(record.id, editedTitle)}
+                            />
+                            <Select defaultValue={record.category} onChange={(value) => setEditCategory(value)}>
+                                {categories.map((category) => (
+                                    <Select.Option
+                                        key={category.id}
+                                        value={category.label}
+                                    >
+                                        {category.label}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        </>
                         :
-                        <Typography.Text type={record.completed ? "secondary" : undefined}>{value}</Typography.Text>
+                        <Typography.Text type={record.completed ? "secondary" : undefined}>{value} <Tag
+                            className={"text-xs!"}>{record.category}</Tag> </Typography.Text>
                     }
                 </Flex>
 
@@ -156,7 +179,7 @@ export default function Todo() {
 
 
     return (
-        <Card className={"m-4! sm:w-md"} variant={"outlined"}
+        <Card className={"m-4! sm:w-lg"} variant={"outlined"}
               title={<Flex>TODO List Manager</Flex>}
         >
             <Input placeholder={"Enter todo title"} value={title}
@@ -232,9 +255,30 @@ export default function Todo() {
             </Flex>
 
             <Flex className={"pt-10!"}>
-                <Table bordered dataSource={filteredTodo(selectedCategory)} columns={columns} className={"w-full"}
-                       pagination={false}
-                       title={() => <Flex>hello</Flex>}
+                <Table
+                    bordered
+                    dataSource={filterTodos(selectedCategory, isCompleted)}
+                    columns={columns}
+                    className={"w-80 sm:w-full"}
+                    scroll={{x: "max-content"}}
+                    pagination={false}
+                    title={() => <Flex>
+                        <Tag
+                            onClick={() => setIsCompleted(undefined)}
+                            color={`${isCompleted === undefined ? "blue" : ""}`}
+                        >
+                            All
+                        </Tag>
+                        <Tag color={`${isCompleted === false ? "blue" : ""}`} onClick={() => setIsCompleted(false)}
+                             className={`${isCompleted === false ? "text-black!" : "text-yellow-500!"}`}>Active</Tag>
+                        <Tag
+                            onClick={() => setIsCompleted(true)}
+                            color={`${isCompleted === true ? "blue" : ""}`}
+                            className={`${isCompleted === true ? "text-black!" : "text-green-500!"}`}
+                        >
+                            Completed
+                        </Tag>
+                    </Flex>}
                 />
             </Flex>
         </Card>

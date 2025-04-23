@@ -35,10 +35,11 @@ export const todoSlice = createSlice({
                 saveToLocalStorage(STORAGE_KEY, state)
             }
         },
-        editTodo: (state, action: PayloadAction<{ id: string, title: string }>) => {
+        editTodo: (state, action: PayloadAction<{ id: string, title: string, category: string }>) => {
             const todo = state.find((todo) => todo.id === action.payload.id);
             if (todo) {
                 todo.title = action.payload.title;
+                todo.category = action.payload.category
                 saveToLocalStorage(STORAGE_KEY, state)
             }
         },
