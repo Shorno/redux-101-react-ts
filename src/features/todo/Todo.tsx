@@ -47,7 +47,6 @@ export default function Todo() {
         setTitle("")
     }
 
-
     const filterTodos = (categoryFilter: string, isCompleted?: boolean) => {
         const categoryFiltered = categoryFilter === ""
             ? todos
@@ -71,13 +70,14 @@ export default function Todo() {
         });
     }
 
-    const handleStartEditing = (id: string, currentTitle: string) => {
+    const handleStartEditing = (id: string, currentTitle: string, currentCategory: string = "") => {
         setEditedTitle(currentTitle);
         setIsEditing(true);
+        setEditCategory(currentCategory)
         setEditingId(id);
     }
 
-    const handleEditTitle = (id: string, title: string) => {
+    const handleEditTodo = (id: string, title: string) => {
         if (title.trim() === "") {
             notification.info({message: "Todo title cannot be empty"});
             return;
@@ -112,7 +112,7 @@ export default function Todo() {
             title: "Title",
             dataIndex: "title",
             key: "title",
-            render: (value, record) =>
+            render: (title, record) =>
                 <Flex gap={10}>
                     <Checkbox
                         onClick={() => handleToggleTodo(record.id, record.title, record.completed)}
@@ -123,21 +123,23 @@ export default function Todo() {
                             <Input
                                 value={editedTitle}
                                 onChange={(event) => setEditedTitle(event.target.value)}
-                                onPressEnter={() => handleEditTitle(record.id, editedTitle)}
+                                onPressEnter={() => handleEditTodo(record.id, editedTitle)}
                             />
-                            <Select defaultValue={record.category} onChange={(value) => setEditCategory(value)}>
-                                {categories.map((category) => (
-                                    <Select.Option
-                                        key={category.id}
-                                        value={category.label}
-                                    >
-                                        {category.label}
-                                    </Select.Option>
-                                ))}
+                            <Select defaultValue={record.category} onChange={(value) => setEditCategory(value)} className={"min-w-20"}>
+                                {categories.map((category) => {
+                                    return (
+                                        <Select.Option
+                                            key={category.id}
+                                            value={category.label}
+                                        >
+                                            {category.label}
+                                        </Select.Option>
+                                    );
+                                })}
                             </Select>
                         </>
                         :
-                        <Typography.Text type={record.completed ? "secondary" : undefined}>{value} <Tag
+                        <Typography.Text type={record.completed ? "secondary" : undefined}>{title} <Tag
                             className={"text-xs!"}>{record.category}</Tag> </Typography.Text>
                     }
                 </Flex>
@@ -151,7 +153,7 @@ export default function Todo() {
             render: (_, record) => <Flex gap={10}>
                 {editingId === record.id ?
                     <Flex gap={10}>
-                        <Button icon={<SaveOutlined/>} onClick={() => handleEditTitle(record.id, editedTitle)}/>
+                        <Button icon={<SaveOutlined/>} onClick={() => handleEditTodo(record.id, editedTitle)}/>
                         <Button icon={<CloseOutlined/>} onClick={() => {
                             setIsEditing(false);
                             setEditingId(null);
@@ -159,7 +161,8 @@ export default function Todo() {
                     </Flex>
                     :
                     <Flex gap={10}>
-                        <Button icon={<EditOutlined/>} onClick={() => handleStartEditing(record.id, record.title)}/>
+                        <Button icon={<EditOutlined/>}
+                                onClick={() => handleStartEditing(record.id, record.title, record.category)}/>
                         <Popconfirm
                             placement={"topLeft"}
                             title="Delete the task"
