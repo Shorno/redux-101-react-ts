@@ -182,7 +182,7 @@ export default function Todo() {
 
 
     return (
-        <Card className={"m-4! sm:w-lg"} variant={"outlined"}
+        <Card className={"m-4! sm:w-lg bg-slate-100!"} variant={"outlined"}
               title={<Flex>TODO List Manager</Flex>}
         >
             <Input placeholder={"Enter todo title"} value={title}
